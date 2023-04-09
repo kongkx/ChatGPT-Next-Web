@@ -3,14 +3,13 @@
 
 @mixin container {
   background-color: var(--white);
-  border: var(--border-in-light);
-  border-radius: 20px;
+  // border: var(--border-in-light);
   box-shadow: var(--shadow);
   color: var(--black);
   background-color: var(--white);
   min-width: 600px;
   min-height: 480px;
-  max-width: 900px;
+  // max-width: 900px;
 
   display: flex;
   overflow: hidden;
@@ -204,6 +203,16 @@
   height: 100%;
 }
 
+.chat-body-container {
+  max-width: 70rem;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .chat-body {
   flex: 1;
   overflow: auto;
@@ -222,19 +231,6 @@
 .chat-message {
   display: flex;
   flex-direction: row;
-}
-
-.chat-message-user {
-  display: flex;
-  flex-direction: row-reverse;
-}
-
-.chat-message-container {
-  max-width: var(--message-max-width);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  animation: slide-in ease 0.3s;
 
   &:hover {
     .chat-message-top-actions {
@@ -245,12 +241,36 @@
   }
 }
 
+.chat-message-user {
+  display: flex;
+  flex-direction: row-reverse;
+}
+
+.chat-message-container {
+  max-width: var(--message-max-width);
+  display: flex;
+  // flex-direction: column;
+  align-items: flex-start;
+  animation: slide-in ease 0.3s;
+  margin-top: 16px;
+
+  @media screen and (min-width: 600px) {
+  }
+}
+
 .chat-message-user > .chat-message-container {
-  align-items: flex-end;
+  // align-items: flex-end;
+  flex-direction: row-reverse;
 }
 
 .chat-message-avatar {
-  margin-top: 20px;
+  margin-top: 14px;
+  margin-right: 12px;
+}
+
+.chat-message-user .chat-message-avatar {
+  margin-left: 12px;
+  margin-right: 0;
 }
 
 .chat-message-status {
@@ -289,7 +309,7 @@
   font-size: 12px;
   position: absolute;
   right: 20px;
-  top: -26px;
+  top: -20px;
   left: 100px;
   transition: all ease 0.3s;
   opacity: 0;
@@ -331,10 +351,17 @@
   color: #aaa;
 }
 
+.chat-input-container {
+  width: 100%;
+  max-width: 70rem;
+  margin-left: auto;
+  margin-right: auto;
+}
 .chat-input-panel {
   width: 100%;
   padding: 20px;
   padding-top: 5px;
+  position: relative;
   box-sizing: border-box;
   flex-direction: column;
 }

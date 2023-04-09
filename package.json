@@ -4,7 +4,7 @@
   "private": false,
   "license": "Anti 996",
   "scripts": {
-    "dev": "yarn fetch && next dev",
+    "dev": "yarn fetch && HTTP_PROXY=http://192.168.1.225:1081 next dev",
     "build": "yarn fetch && next build",
     "start": "next start",
     "lint": "next lint",
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^16.2.0",
+    "@supabase/auth-helpers-nextjs": "^0.6.0",
     "@svgr/webpack": "^6.5.1",
     "@vercel/analytics": "^0.1.11",
     "emoji-picker-react": "^4.4.7",

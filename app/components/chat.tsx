@@ -483,6 +483,8 @@ export function Chat(props: {
 
   const config = useChatStore((state) => state.config);
 
+  console.log(config);
+
   const context: RenderMessage[] = session.context.slice();
 
   if (
@@ -493,34 +495,32 @@ export function Chat(props: {
   }
 
   // preview messages
-  const messages = context
-    .concat(session.messages as RenderMessage[])
-    .concat(
-      isLoading
-        ? [
-            {
-              ...createMessage({
-                role: "assistant",
-                content: "……",
-              }),
-              preview: true,
-            },
-          ]
-        : [],
-    )
-    .concat(
-      userInput.length > 0 && config.sendPreviewBubble
-        ? [
-            {
-              ...createMessage({
-                role: "user",
-                content: userInput,
-              }),
-              preview: true,
-            },
-          ]
-        : [],
-    );
+  const messages = context.concat(session.messages as RenderMessage[]).concat(
+    isLoading
+      ? [
+          {
+            ...createMessage({
+              role: "assistant",
+              content: "……",
+            }),
+            preview: true,
+          },
+        ]
+      : [],
+  );
+  // .concat(
+  //   userInput.length > 0 && config.sendPreviewBubble
+  //     ? [
+  //         {
+  //           ...createMessage({
+  //             role: "user",
+  //             content: userInput,
+  //           }),
+  //           preview: true,
+  //         },
+  //       ]
+  //     : [],
+  // );
 
   const [showPromptModal, setShowPromptModal] = useState(false);
 
@@ -593,118 +593,121 @@ export function Chat(props: {
         />
       </div>
 
-      <div
-        className={styles["chat-body"]}
-        ref={scrollRef}
-        onScroll={(e) => onChatBodyScroll(e.currentTarget)}
-        onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}
-        onTouchStart={() => {
-          inputRef.current?.blur();
-          setAutoScroll(false);
-        }}
-      >
-        {messages.map((message, i) => {
-          const isUser = message.role === "user";
+      <div className={styles["chat-body-container"]}>
+        <div
+          className={styles["chat-body"]}
+          ref={scrollRef}
+          onScroll={(e) => onChatBodyScroll(e.currentTarget)}
+          onWheel={(e) => setAutoScroll(hitBottom && e.deltaY > 0)}
+          onTouchStart={() => {
+            inputRef.current?.blur();
+            setAutoScroll(false);
+          }}
+        >
+          {messages.map((message, i) => {
+            const isUser = message.role === "user";
 
-          return (
-            <div
-              key={i}
-              className={
-                isUser ? styles["chat-message-user"] : styles["chat-message"]
-              }
-            >
-              <div className={styles["chat-message-container"]}>
-                <div className={styles["chat-message-avatar"]}>
-                  <Avatar role={message.role} />
-                </div>
-                {(message.preview || message.streaming) && (
-                  <div className={styles["chat-message-status"]}>
-                    {Locale.Chat.Typing}
+            return (
+              <div
+                key={i}
+                className={
+                  isUser ? styles["chat-message-user"] : styles["chat-message"]
+                }
+              >
+                <div className={styles["chat-message-container"]}>
+                  <div className={styles["chat-message-avatar"]}>
+                    <Avatar role={message.role} />
                   </div>
-                )}
-                <div className={styles["chat-message-item"]}>
-                  {!isUser &&
-                    !(message.preview || message.content.length === 0) && (
-                      <div className={styles["chat-message-top-actions"]}>
-                        {message.streaming ? (
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onUserStop(message.id ?? i)}
-                          >
-                            {Locale.Chat.Actions.Stop}
-                          </div>
-                        ) : (
-                          <div
-                            className={styles["chat-message-top-action"]}
-                            onClick={() => onResend(i)}
-                          >
-                            {Locale.Chat.Actions.Retry}
-                          </div>
-                        )}
-
-                        <div
-                          className={styles["chat-message-top-action"]}
-                          onClick={() => copyToClipboard(message.content)}
-                        >
-                          {Locale.Chat.Actions.Copy}
-                        </div>
-                      </div>
-                    )}
-                  {(message.preview || message.content.length === 0) &&
-                  !isUser ? (
-                    <LoadingIcon />
-                  ) : (
-                    <div
-                      className="markdown-body"
-                      style={{ fontSize: `${fontSize}px` }}
-                      onContextMenu={(e) => onRightClick(e, message)}
-                      onDoubleClickCapture={() => {
-                        if (!isMobileScreen()) return;
-                        setUserInput(message.content);
-                      }}
-                    >
-                      <Markdown content={message.content} />
+                  {(message.preview || message.streaming) && (
+                    <div className={styles["chat-message-status"]}>
+                      {Locale.Chat.Typing}
                     </div>
                   )}
-                </div>
-                {!isUser && !message.preview && (
-                  <div className={styles["chat-message-actions"]}>
-                    <div className={styles["chat-message-action-date"]}>
-                      {message.date.toLocaleString()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+                  <div className={styles["chat-message-item"]}>
+                    {!isUser &&
+                      !(message.preview || message.content.length === 0) && (
+                        <div className={styles["chat-message-top-actions"]}>
+                          {message.streaming ? (
+                            <div
+                              className={styles["chat-message-top-action"]}
+                              onClick={() => onUserStop(message.id ?? i)}
+                            >
+                              {Locale.Chat.Actions.Stop}
+                            </div>
+                          ) : (
+                            <div
+                              className={styles["chat-message-top-action"]}
+                              onClick={() => onResend(i)}
+                            >
+                              {Locale.Chat.Actions.Retry}
+                            </div>
+                          )}
 
-      <div className={styles["chat-input-panel"]}>
-        <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
-        <div className={styles["chat-input-panel-inner"]}>
-          <textarea
-            ref={inputRef}
-            className={styles["chat-input"]}
-            placeholder={Locale.Chat.Input(submitKey)}
-            onInput={(e) => onInput(e.currentTarget.value)}
-            value={userInput}
-            onKeyDown={onInputKeyDown}
-            onFocus={() => setAutoScroll(true)}
-            onBlur={() => {
-              setAutoScroll(false);
-              setTimeout(() => setPromptHints([]), 500);
-            }}
-            autoFocus={!props?.sideBarShowing}
-            rows={inputRows}
-          />
-          <IconButton
-            icon={<SendWhiteIcon />}
-            text={Locale.Chat.Send}
-            className={styles["chat-input-send"]}
-            noDark
-            onClick={onUserSubmit}
-          />
+                          <div
+                            className={styles["chat-message-top-action"]}
+                            onClick={() => copyToClipboard(message.content)}
+                          >
+                            {Locale.Chat.Actions.Copy}
+                          </div>
+                        </div>
+                      )}
+                    {(message.preview || message.content.length === 0) &&
+                    !isUser ? (
+                      <LoadingIcon />
+                    ) : (
+                      <div
+                        className="markdown-body"
+                        style={{ fontSize: `${fontSize}px` }}
+                        onContextMenu={(e) => onRightClick(e, message)}
+                        onDoubleClickCapture={() => {
+                          if (!isMobileScreen()) return;
+                          setUserInput(message.content);
+                        }}
+                      >
+                        <Markdown content={message.content} />
+                      </div>
+                    )}
+                  </div>
+                  {/* {!isUser && !message.preview && (
+                    <div className={styles["chat-message-actions"]}>
+                      <div className={styles["chat-message-action-date"]}>
+                        {message.date.toLocaleString()}
+                      </div>
+                    </div>
+                  )} */}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+      <div className={styles["chat-input-container"]}>
+        <div className={styles["chat-input-panel"]}>
+          <PromptHints prompts={promptHints} onPromptSelect={onPromptSelect} />
+          <div className={styles["chat-input-panel-inner"]}>
+            <textarea
+              ref={inputRef}
+              className={styles["chat-input"]}
+              placeholder={Locale.Chat.Input(submitKey)}
+              onInput={(e) => onInput(e.currentTarget.value)}
+              value={userInput}
+              onKeyDown={onInputKeyDown}
+              onFocus={() => setAutoScroll(true)}
+              onBlur={() => {
+                setAutoScroll(false);
+                setTimeout(() => setPromptHints([]), 500);
+              }}
+              autoFocus={!props?.sideBarShowing}
+              rows={inputRows}
+            />
+            <IconButton
+              icon={<SendWhiteIcon />}
+              text={Locale.Chat.Send}
+              className={styles["chat-input-send"]}
+              noDark
+              onClick={onUserSubmit}
+            />
+          </div>
         </div>
       </div>
     </div>
